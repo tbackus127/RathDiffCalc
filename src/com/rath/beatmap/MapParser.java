@@ -100,9 +100,9 @@ public class MapParser {
         break;
       }
 
-      int offset = Integer.parseInt(tpData[0]);
-      double msPerBeat = Double.parseDouble(tpData[1]);
-      boolean inherited = Boolean.parseBoolean(tpData[6]);
+      final int offset = Integer.parseInt(tpData[0]);
+      final double msPerBeat = Double.parseDouble(tpData[1]);
+      final boolean inherited = Boolean.parseBoolean(tpData[6]);
       result.add(new TimingPoint(offset, msPerBeat, inherited));
     }
 
@@ -123,18 +123,31 @@ public class MapParser {
       // There's probably a better regex for this...
       String[] objData = line.split(",");
       
-      int objX = Integer.parseInt(objData[0]);
-      int objY = Integer.parseInt(objData[1]);
-      Coord objPos = new Coord(objX, objY);
-      int time = Integer.parseInt(objData[2]);
+      final int objX = Integer.parseInt(objData[0]);
+      final int objY = Integer.parseInt(objData[1]);
+      final Coord objPos = new Coord(objX, objY);
+      final int time = Integer.parseInt(objData[2]);
       
       // Check what HitObject we're dealing with
       switch(typeMap.get(objData[3])) {
         case SLIDER:
+          ArrayList<Curve> curves = new ArrayList<Curve>();
+          String[] curvesStr = objData[5].split("\\|");
           
+          
+          
+          for(int i = 1; i < curvesStr.length; i++) {
+            String[] curvePosArr = curvesStr[i].split(":");
+            final int curveX = Integer.parseInt(curvePosArr[0]);
+            final int curveY = Integer.parseInt(curvePosArr[1]);
+            final Coord curvePos = new Coord(curveX, curveY);
+            
+            curves.add(new Curve(curvePos, curveType));
+          }
+          result.add(new Slider(objPos, time, type, curves));
         break;
         case SPINNER:
-         int endTime = Integer.parseInt(objData[5]);
+         final int endTime = Integer.parseInt(objData[5]);
          result.add(new Spinner(time, endTime));
         break;
         default:

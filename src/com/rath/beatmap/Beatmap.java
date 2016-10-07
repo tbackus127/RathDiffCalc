@@ -115,4 +115,36 @@ public class Beatmap {
   public int getSliderTickRate() {
     return sliderTickRate;
   }
+
+  @Override
+  public String toString() {
+    String result = "> Beatmap:\n";
+    result += metaStr();
+    result += paramStr();
+    result += objStr();
+    return result;
+  }
+
+  private String metaStr() {
+    return "  -" + this.artist + " - " + this.title + " [" + this.diffName
+        + "]" + " // " + this.creator;
+  }
+
+  private String paramStr() {
+    return "  -CS=" + this.circleSize + " AR=" + this.approachRate + " OD="
+        + this.accuracy + " HP=" + this.hpDrain;
+  }
+
+  private String objStr() {
+    return "  -" + this.hitObjects.size() + " HitObjects @ " + getAverageBPM()
+        + "BPM";
+  }
+
+  private double getAverageBPM() {
+    double total = 0;
+    for (TimingPoint tp : this.timingPoints) {
+      total += 60000.0D / (double) tp.getMsPerBeat();
+    }
+    return total / this.timingPoints.size();
+  }
 }

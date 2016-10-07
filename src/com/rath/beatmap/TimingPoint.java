@@ -4,10 +4,10 @@ package com.rath.beatmap;
 public class TimingPoint {
 
   private final int offset;
-  private final int msPerBeat;
+  private final double msPerBeat;
   private final boolean inherited;
 
-  public TimingPoint(int offset, int msPerBeat, boolean inherited) {
+  public TimingPoint(int offset, double msPerBeat, boolean inherited) {
     this.offset = offset;
     this.msPerBeat = msPerBeat;
     this.inherited = inherited;
@@ -18,7 +18,7 @@ public class TimingPoint {
     return offset;
   }
 
-  public int getMsPerBeat() {
+  public double getMsPerBeat() {
     return msPerBeat;
   }
 

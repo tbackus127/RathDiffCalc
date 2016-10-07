@@ -15,8 +15,14 @@ public class MapParser {
       "Artist", "Creator", "Version", "Source", "HPDrainRate", "CircleSize",
       "OverallDifficulty", "ApproachRate", "SliderMultiplier", "SliderTickRate" };
 
-  public Beatmap parse(File osuFile) throws FileNotFoundException {
+  private static final HashMap<String, HitObjectType> typeMap = new HashMap<String, HitObjectType>();
 
+  public static Beatmap parse(File osuFile) throws FileNotFoundException {
+
+    if(typeMap.isEmpty()) {
+      buildTypeMap();
+    }
+    
     if (osuFile.exists()) {
       Scanner fileScan = null;
       try {
@@ -35,20 +41,20 @@ public class MapParser {
     return null;
   }
 
-  private Beatmap parse(Scanner fscan) {
-    
+  private static Beatmap parse(Scanner fscan) {
+
     // Put values in a map
     HashMap<String, String> parseMap = new HashMap<String, String>();
     for (int i = 0; i < labelList.length; i++) {
-      if(fscan.hasNextLine()) {
+      if (fscan.hasNextLine()) {
         String line = fscan.nextLine();
-        if(line.startsWith(labelList[i])) {
+        if (line.startsWith(labelList[i])) {
           String dataValue = line.split(":", 2)[1];
           parseMap.put(labelList[i], dataValue.trim());
         }
       }
     }
-    
+
     // Create beatmap object
     final String title = parseMap.get(labelList[1]);
     final String artist = parseMap.get(labelList[2]);
@@ -59,13 +65,96 @@ public class MapParser {
     final double circleSize = Double.parseDouble(parseMap.get(labelList[7]));
     final double accuracy = Double.parseDouble(parseMap.get(labelList[8]));
     final double approachRate = Double.parseDouble(parseMap.get(labelList[9]));
-    final ArrayList<TimingPoint> timingPoints = parseTimingPoints();
-    final ArrayList<HitObject> hitObjects = parseHitObjects();
+    final ArrayList<TimingPoint> timingPoints = parseTimingPoints(fscan);
+    final ArrayList<HitObject> hitObjects = parseHitObjects(fscan);
     final double stackLeniency = Double.parseDouble(parseMap.get(labelList[0]));
-    final double sliderSpeedMult = Double.parseDouble(parseMap.get(labelList[10]));
+    final double sliderSpeedMult = Double.parseDouble(parseMap
+        .get(labelList[10]));
     final int sliderTickRate = Integer.parseInt(parseMap.get(labelList[11]));
 
-    
-    return null;
+    return new Beatmap(title, artist, creator, diffName, source, hpDrain,
+        circleSize, accuracy, approachRate, timingPoints, hitObjects,
+        stackLeniency, sliderSpeedMult, sliderTickRate);
+  }
+
+  private static ArrayList<TimingPoint> parseTimingPoints(Scanner fscan) {
+    ArrayList<TimingPoint> result = new ArrayList<TimingPoint>();
+
+    // Get the read position to the line after "[TimingPoints]"
+    while (fscan.hasNextLine()
+        && !fscan.nextLine().startsWith("[TimingPoints]")) {}
+
+    // Get the timing points
+    while (fscan.hasNextLine()) {
+      String line = fscan.nextLine();
+
+      // If it's a timing point line, stop parsing
+      if (line.length() < 15) break;
+
+      // Split into 8 strings delimited by commas
+      String[] tpData = line.split(",");
+
+      // There should be 8 values in each TimingPoint
+      if (tpData.length != 8) {
+        System.err.println("Wrong number of timing points in .osu file!");
+        break;
+      }
+
+      int offset = Integer.parseInt(tpData[0]);
+      double msPerBeat = Double.parseDouble(tpData[1]);
+      boolean inherited = Boolean.parseBoolean(tpData[6]);
+      result.add(new TimingPoint(offset, msPerBeat, inherited));
+    }
+
+    return result;
+  }
+
+  private static ArrayList<HitObject> parseHitObjects(Scanner fscan) {
+    ArrayList<HitObject> result = new ArrayList<HitObject>();
+
+    // Get the read position to the line after "[HitObjects]"
+    while (fscan.hasNextLine() && !fscan.nextLine().startsWith("[HitObjects]")) {}
+
+    while (fscan.hasNextLine()) {
+      String line = fscan.nextLine();
+
+      if (line.length() < 10) break;
+
+      // There's probably a better regex for this...
+      String[] objData = line.split(",");
+      
+      int objX = Integer.parseInt(objData[0]);
+      int objY = Integer.parseInt(objData[1]);
+      Coord objPos = new Coord(objX, objY);
+      int time = Integer.parseInt(objData[2]);
+      
+      // Check what HitObject we're dealing with
+      switch(typeMap.get(objData[3])) {
+        case SLIDER:
+          
+        break;
+        case SPINNER:
+         int endTime = Integer.parseInt(objData[5]);
+         result.add(new Spinner(time, endTime));
+        break;
+        default:
+          result.add(new HitCircle(objPos, time));
+      }
+      
+      
+      
+
+    }
+
+    return result;
+  }
+  
+  private static void buildTypeMap() {
+    typeMap.put("1", HitObjectType.HIT_CIRCLE);
+    typeMap.put("2", HitObjectType.SLIDER);
+    typeMap.put("8", HitObjectType.SPINNER);
+    typeMap.put("5", HitObjectType.HIT_CIRCLE);
+    typeMap.put("6", HitObjectType.SLIDER);
+    typeMap.put("12", HitObjectType.SPINNER);
   }
 }

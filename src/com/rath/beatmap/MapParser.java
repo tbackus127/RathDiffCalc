@@ -19,10 +19,10 @@ public class MapParser {
 
   public static Beatmap parse(File osuFile) throws FileNotFoundException {
 
-    if(typeMap.isEmpty()) {
+    if (typeMap.isEmpty()) {
       buildTypeMap();
     }
-    
+
     if (osuFile.exists()) {
       Scanner fileScan = null;
       try {
@@ -36,6 +36,7 @@ public class MapParser {
         fileScan.close();
       }
     } else {
+      System.err.println(osuFile.getAbsolutePath());
       throw new FileNotFoundException("Beatmap file does not exist!");
     }
     return null;
@@ -43,14 +44,20 @@ public class MapParser {
 
   private static Beatmap parse(Scanner fscan) {
 
+    System.out.println("Parsing");
+
     // Put values in a map
     HashMap<String, String> parseMap = new HashMap<String, String>();
     for (int i = 0; i < labelList.length; i++) {
-      if (fscan.hasNextLine()) {
+//      System.out.println(" Searching for label \"" + labelList[i] + "\"");
+      while (fscan.hasNextLine()) {
         String line = fscan.nextLine();
+//        System.out.println("   Found next line: \"" + line + "\"");
         if (line.startsWith(labelList[i])) {
+//          System.out.println("  Found label: " + labelList[i]);
           String dataValue = line.split(":", 2)[1];
           parseMap.put(labelList[i], dataValue.trim());
+          break;
         }
       }
     }
@@ -61,6 +68,11 @@ public class MapParser {
     final String creator = parseMap.get(labelList[3]);
     final String diffName = parseMap.get(labelList[4]);
     final String source = parseMap.get(labelList[5]);
+
+    // for (String s : parseMap.keySet()) {
+    // System.out.println(s + " -> " + parseMap.get(s));
+    // }
+
     final double hpDrain = Double.parseDouble(parseMap.get(labelList[6]));
     final double circleSize = Double.parseDouble(parseMap.get(labelList[7]));
     final double accuracy = Double.parseDouble(parseMap.get(labelList[8]));
@@ -122,52 +134,58 @@ public class MapParser {
 
       // There's probably a better regex for this...
       String[] objData = line.split(",");
-      
+
       final int objX = Integer.parseInt(objData[0]);
       final int objY = Integer.parseInt(objData[1]);
       final Coord objPos = new Coord(objX, objY);
       final int time = Integer.parseInt(objData[2]);
-      
+
       // Check what HitObject we're dealing with
-      switch(typeMap.get(objData[3])) {
+      switch (typeMap.get(objData[3])) {
         case SLIDER:
-          ArrayList<Curve> curves = new ArrayList<Curve>();
-          String[] curvesStr = objData[5].split("\\|");
-          
-          
-          
-          for(int i = 1; i < curvesStr.length; i++) {
-            String[] curvePosArr = curvesStr[i].split(":");
+          ArrayList<SliderPoint> sliderPoints = new ArrayList<SliderPoint>();
+          String[] spString = objData[5].split("\\|");
+
+          // Slider curve type
+          SliderType type = Slider.getType(spString[0]);
+
+          // Pack up slider points
+          for (int i = 1; i < spString.length; i++) {
+            final String[] curvePosArr = spString[i].split(":");
             final int curveX = Integer.parseInt(curvePosArr[0]);
             final int curveY = Integer.parseInt(curvePosArr[1]);
-            final Coord curvePos = new Coord(curveX, curveY);
-            
-            curves.add(new Curve(curvePos, curveType));
+
+            boolean isStraight = false;
+
+            // Detect straight slider points
+            if (i < spString.length - 1 && spString[i + 1].equals(spString[i])) {
+              isStraight = true;
+            }
+
+            sliderPoints.add(new SliderPoint(curveX, curveY, isStraight));
           }
-          result.add(new Slider(objPos, time, type, curves));
+          result.add(new Slider(objPos, time, type, sliderPoints));
         break;
         case SPINNER:
-         final int endTime = Integer.parseInt(objData[5]);
-         result.add(new Spinner(time, endTime));
+          final int endTime = Integer.parseInt(objData[5]);
+          result.add(new Spinner(time, endTime));
         break;
         default:
           result.add(new HitCircle(objPos, time));
       }
-      
-      
-      
 
     }
 
     return result;
   }
-  
+
   private static void buildTypeMap() {
+    // System.err.println("Built type map.");
     typeMap.put("1", HitObjectType.HIT_CIRCLE);
     typeMap.put("2", HitObjectType.SLIDER);
-    typeMap.put("8", HitObjectType.SPINNER);
     typeMap.put("5", HitObjectType.HIT_CIRCLE);
     typeMap.put("6", HitObjectType.SLIDER);
+    typeMap.put("8", HitObjectType.SPINNER);
     typeMap.put("12", HitObjectType.SPINNER);
   }
 }

@@ -25,5 +25,10 @@ public class TimingPoint {
   public boolean isInherited() {
     return inherited;
   }
+  
+  @Override
+  public String toString() {
+    return "TPnt: T=" + this.offset + ", " + this.msPerBeat + "ms/b, Inh=" + this.inherited;
+  }
 
 }

@@ -8,6 +8,7 @@ public class DiffCalc {
   
   public DiffCalc(String mapDirectory) {
     this.mapFolder = new File(mapDirectory);
+    
   }
   
   

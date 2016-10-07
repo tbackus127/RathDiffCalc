@@ -126,25 +126,29 @@ public class Beatmap {
   }
 
   private String metaStr() {
-    return "  -" + this.artist + " - " + this.title + " [" + this.diffName
-        + "]" + " // " + this.creator;
+    return "  " + this.artist + " - " + this.title + " [" + this.diffName
+        + "]" + " // " + this.creator + "\n";
   }
 
   private String paramStr() {
-    return "  -CS=" + this.circleSize + " AR=" + this.approachRate + " OD="
-        + this.accuracy + " HP=" + this.hpDrain;
+    return "  CS=" + this.circleSize + " AR=" + this.approachRate + " OD="
+        + this.accuracy + " HP=" + this.hpDrain + "\n";
   }
 
   private String objStr() {
-    return "  -" + this.hitObjects.size() + " HitObjects @ " + getAverageBPM()
+    return "  " + this.hitObjects.size() + " HitObjects @ " + getAverageBPM()
         + "BPM";
   }
 
   private double getAverageBPM() {
     double total = 0;
+    int numTP = 0;
     for (TimingPoint tp : this.timingPoints) {
-      total += 60000.0D / (double) tp.getMsPerBeat();
+      if (tp.getMsPerBeat() > 0.0D) {
+        total += tp.getMsPerBeat();
+        numTP++;
+      }
     }
-    return total / this.timingPoints.size();
+    return Math.round(60000.0D / (total / numTP));
   }
 }

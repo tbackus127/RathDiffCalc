@@ -18,7 +18,7 @@ public class Slider extends HitObject {
   @Override
   public String toString() {
     return "Slider@" + this.pos + ":T=" + this.offset + ":Type="
-        + this.type + ":\n  " + Arrays.toString(this.curves.toArray());
+        + this.type + "\n  Curves: " + Arrays.toString(this.curves.toArray());
   }
   
   public static SliderType getType(String s) {

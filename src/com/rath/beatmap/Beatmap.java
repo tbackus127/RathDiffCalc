@@ -2,6 +2,7 @@
 package com.rath.beatmap;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * This class handles all of a beatmap's metadata, objects, and settings.
@@ -9,7 +10,7 @@ import java.util.ArrayList;
  * @author Tim Backus tbackus127@gmail.com
  *         
  */
-public class Beatmap {
+public class Beatmap implements Iterable<HitObject> {
   
   /** The non-Unicode title of the beatmap. */
   private final String title;
@@ -302,5 +303,10 @@ public class Beatmap {
    */
   private String objStr() {
     return "  " + this.hitObjects.size() + " HitObjects @ " + getAverageBPM() + "BPM";
+  }
+
+  @Override
+  public Iterator<HitObject> iterator() {
+    return this.hitObjects.iterator();
   }
 }

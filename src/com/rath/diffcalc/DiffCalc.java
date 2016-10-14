@@ -27,6 +27,20 @@ public class DiffCalc {
     }
   }
   
+  private AimDifficulty calcAimDiff(Beatmap b) {
+    //TODO: Aim difficulty
+    return null;
+  }
+  
+  private TimingDifficulty calcTimingDiff(Beatmap b) {
+    //TODO: Timing difficulty
+    return null;
+  }
+  
+  private ReadingDifficulty calcReadingDiff(Beatmap b) {
+    //TODO: Reading difficulty
+    return null;
+  }
   
   
 }

@@ -1,6 +1,8 @@
 
 package com.rath.diffcalc;
 
+import com.rath.beatmap.Beatmap;
+
 public class TimingDifficulty {
 
   private final double control;
@@ -29,5 +31,25 @@ public class TimingDifficulty {
 
   public double getStamina() {
     return stamina;
+  }
+
+  public static double calcControl(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcSpeed(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcAccuracy(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcStamina(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
   }
 }

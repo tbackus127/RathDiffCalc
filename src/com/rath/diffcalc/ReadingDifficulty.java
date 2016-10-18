@@ -1,6 +1,8 @@
 
 package com.rath.diffcalc;
 
+import com.rath.beatmap.Beatmap;
+
 public class ReadingDifficulty {
 
   private final double range;
@@ -23,5 +25,20 @@ public class ReadingDifficulty {
 
   public double getTiming() {
     return timing;
+  }
+
+  public static double calcRange(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcPath(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcTiming(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
   }
 }

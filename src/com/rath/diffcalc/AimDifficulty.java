@@ -45,7 +45,7 @@ public class AimDifficulty {
     final double approachRate = b.getApproachRate();
 
     HitObject lastObject = null;
-    final ArrayList<Double> jumpDistances = new ArrayList<Double>();
+    final ArrayList<Double> jumpSpeeds = new ArrayList<Double>();
 
     // Find average jump distance
     for (HitObject hitObject : b) {
@@ -55,15 +55,16 @@ public class AimDifficulty {
 
         // Calculate distance between last and this object
         final CircleDelta cDelta = new CircleDelta(hitObject, lastObject);
-        final double jumpDist = cDelta.getDistance();
-        jumpDistances.add(jumpDist);
+        final double jumpSpd = cDelta.getJumpSpeed();
+        jumpSpeeds.add(jumpSpd);
 
       }
 
       lastObject = hitObject;
     }
 
-    for (double objDist : jumpDistances) {
+    // Iterate through jump distances
+    for (double objDist : jumpSpeeds) {
 
       // Calculate a difficulty for this jump
       final double jumpDiff = Math.pow(objDist, JUMP_WEIGHT)
@@ -74,11 +75,26 @@ public class AimDifficulty {
     return 0;
   }
 
-  private static double calcAverage(ArrayList<Double> list) {
+  private static final double calcAverage(ArrayList<Double> list) {
     double total = 0;
     for (double d : list) {
       total += d;
     }
     return total / list.size();
+  }
+
+  public static double calcSpeed(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcControl(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  public static double calcStamina(Beatmap b) {
+    // TODO Auto-generated method stub
+    return 0;
   }
 }

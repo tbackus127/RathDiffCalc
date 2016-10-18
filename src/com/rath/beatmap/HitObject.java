@@ -15,9 +15,6 @@ public abstract class HitObject {
   /** The time offset from 0 that this object appears. */
   protected int offset;
   
-  /** The type of hit object this is. */
-  protected HitObjectType type;
-  
   /**
    * Constructor called from the inherited classes only.
    * 
@@ -46,7 +43,15 @@ public abstract class HitObject {
   }
   
   /**
+   * The type of HitObject this is.
+   * @return HIT_CIRCLE, SLIDER, or SPINNER.
+   */
+  public abstract HitObjectType getType();
+  
+  /**
    * toString method for printing.
+   * @return a String representation of the object.
    */
   public abstract String toString();
+  
 }

@@ -32,4 +32,9 @@ public class Slider extends HitObject {
     }
     return null;
   }
+
+  @Override
+  public HitObjectType getType() {
+    return HitObjectType.SLIDER;
+  }
 }

@@ -14,4 +14,9 @@ public class Spinner extends HitObject {
   public String toString() {
     return "Spinner:T=" + this.offset + "-" + this.endTime;
   }
+
+  @Override
+  public HitObjectType getType() {
+    return HitObjectType.SPINNER;
+  }
 }

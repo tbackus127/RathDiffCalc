@@ -62,9 +62,9 @@ public class Coord {
     final int ay = a.getY();
     final int bx = b.getX();
     final int by = b.getY();
-    double d1 = Math.pow((ay - ax), 2);
-    double d2 = Math.pow(by - bx, 2);
-    return Math.abs(Math.sqrt(d1 + d2));
+    double d1 = Math.abs(Math.pow((bx - ax), 2));
+    double d2 = Math.abs(Math.pow(by - ay, 2));
+    return Math.sqrt(d1 + d2);
   }
   
   /**

@@ -27,7 +27,7 @@ public class CircleDelta {
   private double calcJumpSpeed() {
     final int dt = this.timeB - this.timeA;
     if (dt == 0) return Double.POSITIVE_INFINITY;
-    return this.dist / dt;
+    return Math.abs(this.dist / dt);
   }
 
   /**

@@ -43,6 +43,7 @@ public class AimDifficulty {
   public static final double calcPrecision(Beatmap b) {
     final double circleSize = b.getCircleSize();
     final double approachRate = b.getApproachRate();
+    final double averageJumpDiff;
 
     HitObject lastObject = null;
     final ArrayList<Double> jumpSpeeds = new ArrayList<Double>();
@@ -53,9 +54,12 @@ public class AimDifficulty {
       // If it's an object that requires aiming
       if (lastObject != null && hitObject.getType() != HitObjectType.SPINNER) {
 
+        System.out.println(lastObject + " to " + hitObject);
+        
         // Calculate distance between last and this object
-        final CircleDelta cDelta = new CircleDelta(hitObject, lastObject);
+        final CircleDelta cDelta = new CircleDelta(lastObject, hitObject);
         final double jumpSpd = cDelta.getJumpSpeed();
+        System.out.println("Jump spd: " + jumpSpd);
         jumpSpeeds.add(jumpSpd);
 
       }
@@ -63,11 +67,13 @@ public class AimDifficulty {
       lastObject = hitObject;
     }
 
+    averageJumpDiff = calcAverage(jumpSpeeds);
+    
     // Iterate through jump distances
-    for (double objDist : jumpSpeeds) {
+    for (double jSpd : jumpSpeeds) {
 
       // Calculate a difficulty for this jump
-      final double jumpDiff = Math.pow(objDist, JUMP_WEIGHT)
+      final double jumpDiff = Math.pow(jSpd, JUMP_WEIGHT)
           * Math.pow(circleSize + 1, CS_WEIGHT);
       System.out.println("Jump diff:" + jumpDiff);
 

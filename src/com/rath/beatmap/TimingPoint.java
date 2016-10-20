@@ -6,11 +6,13 @@ public class TimingPoint {
   private final int offset;
   private final double msPerBeat;
   private final boolean inherited;
+  private final boolean isKiai;
 
-  public TimingPoint(int offset, double msPerBeat, boolean inherited) {
+  public TimingPoint(int offset, double msPerBeat, boolean inherited, boolean isKiai) {
     this.offset = offset;
     this.msPerBeat = msPerBeat;
     this.inherited = inherited;
+    this.isKiai = isKiai;
 
   }
 
@@ -20,6 +22,10 @@ public class TimingPoint {
 
   public double getMsPerBeat() {
     return msPerBeat;
+  }
+
+  public boolean isKiai() {
+    return isKiai;
   }
 
   public boolean isInherited() {

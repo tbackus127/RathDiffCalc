@@ -45,8 +45,11 @@ public class AimDifficulty {
     return stamina;
   }
 
-  public static final double calcPrecision(Beatmap b) {
-    // TODO: Calculate precision
+  public static final double calcPrecision(Beatmap beatmap) {
+    
+    final double circleSize = beatmap.getCircleSize();
+    
+    
     return 0;
   }
 
@@ -91,6 +94,10 @@ public class AimDifficulty {
     final double leftEq = jumpSpeedMean * (1 - (jumpWeight));
     final double rightEq = devJumpMean * (jumpWeight);
 
+    final double bpm = beatmap.getBPM();
+    final double optAR = beatmap.getOptimalAR();
+    System.out.println("    AR=" + optAR + " BPM=" + bpm);
+    
     return leftEq + rightEq;
   }
 

@@ -108,8 +108,13 @@ public class MapParser {
 
       final int offset = Integer.parseInt(tpData[0]);
       final double msPerBeat = Double.parseDouble(tpData[1]);
-      final boolean inherited = Boolean.parseBoolean(tpData[6]);
-      result.add(new TimingPoint(offset, msPerBeat, inherited));
+      
+      final int inherInt = Integer.parseInt(tpData[6]);
+      final int kiaiInt = Integer.parseInt(tpData[6]);
+      
+      final boolean inherited = (inherInt == 0) ? false : true;
+      final boolean isKiai = (kiaiInt == 0) ? false : true;
+      result.add(new TimingPoint(offset, msPerBeat, inherited, isKiai));
     }
 
     return result;

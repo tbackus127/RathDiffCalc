@@ -7,11 +7,16 @@ import com.rath.beatmap.Beatmap;
 import com.rath.beatmap.HitObject;
 import com.rath.beatmap.HitObjectType;
 
+/**
+ * The aim difficulty vector.
+ * 
+ * @author Tim Backus tbackus127@gmail.com
+ * 
+ */
 public class AimDifficulty {
-
-  private static final double JUMP_WEIGHT = 1.05D;
-  private static final double CS_WEIGHT = 1.25D;
-
+  
+  private static final double JUMP_THRESHOLD = 0.6667;
+  
   private final double precision;
   private final double speed;
   private final double control;
@@ -41,54 +46,47 @@ public class AimDifficulty {
   }
 
   public static final double calcPrecision(Beatmap b) {
-    final double circleSize = b.getCircleSize();
-    final double approachRate = b.getApproachRate();
-    final double averageJumpDiff;
+    // TODO: Calculate precision
+    return 0;
+  }
 
-    HitObject lastObject = null;
+  public static double calcSpeed(Beatmap beatmap) {
+
     final ArrayList<Double> jumpSpeeds = new ArrayList<Double>();
+    HitObject lastObj = null;
 
-    // Find average jump distance
-    for (HitObject hitObject : b) {
+    // Get the mean jump speed
+    for (HitObject mapObj : beatmap) {
 
-      // If it's an object that requires aiming
-      if (lastObject != null && hitObject.getType() != HitObjectType.SPINNER) {
-
-        // Calculate distance between last and this object
-        final CircleDelta cDelta = new CircleDelta(lastObject, hitObject);
-        final double jumpSpd = cDelta.getJumpSpeed();
-        jumpSpeeds.add(jumpSpd);
-
+      // If it's not the first HitObject and aimable
+      if (lastObj != null && mapObj.getType() != HitObjectType.SPINNER) {
+        CircleDelta jump = new CircleDelta(lastObj, mapObj);
+        final double jumpSpeed = jump.getJumpSpeed();
+        jumpSpeeds.add(jumpSpeed);
       }
 
-      lastObject = hitObject;
+      lastObj = mapObj;
     }
-
-    averageJumpDiff = calcAverage(jumpSpeeds);
-
-    // Iterate through jump distances
-    for (double jSpd : jumpSpeeds) {
-
-      // Calculate a difficulty for this jump
-      final double jumpDiff = Math.pow(jSpd, JUMP_WEIGHT)
-          * Math.pow(circleSize + 1, CS_WEIGHT);
-      System.out.println("Jump diff:" + jumpDiff);
-
+    
+    final double jumpSpeedMean = calcAverage(jumpSpeeds);
+    final double jumpSpeedSD = calcStdDev(jumpSpeeds, jumpSpeedMean);
+    
+    // Get all the jumps > SD1
+    final ArrayList<Double> devJump = new ArrayList<Double>();
+    for(Double d : jumpSpeeds) {
+      
+      final double zScore = (d - jumpSpeedMean) / jumpSpeedSD;
+      if(zScore > JUMP_THRESHOLD) {
+        devJump.add(d);
+      }
     }
-    return 0;
-  }
+    
+    final double devJumpMean = calcAverage(devJump);
+    final double jumpWeight = devJump.size() / jumpSpeeds.size();
+    final double leftEq = jumpSpeedMean * (1 - (jumpWeight));
+    final double rightEq = devJumpMean * (jumpWeight);
 
-  private static final double calcAverage(ArrayList<Double> list) {
-    double total = 0;
-    for (double d : list) {
-      total += d;
-    }
-    return total / list.size();
-  }
-
-  public static double calcSpeed(Beatmap b) {
-    // TODO Auto-generated method stub
-    return 0;
+    return leftEq + rightEq;
   }
 
   public static double calcControl(Beatmap b) {
@@ -99,5 +97,37 @@ public class AimDifficulty {
   public static double calcStamina(Beatmap b) {
     // TODO Auto-generated method stub
     return 0;
+  }
+
+  /**
+   * Gets the average of the values in a list.
+   * 
+   * @param list the ArrayList of doubles to average.
+   * @return the mean of the values of list.
+   */
+  private static double calcAverage(ArrayList<Double> list) {
+    double total = 0.0D;
+    for (double d : list) {
+      total += d;
+    }
+    return total / list.size();
+  }
+
+  /**
+   * Gets the standard deviation of the values in a list.
+   * 
+   * @param list the ArrayList of doubles to get the SD of.
+   * @param mean the previously calculated mean of the list.
+   * @return the standard deviation of the values of list.
+   */
+  private static double calcStdDev(ArrayList<Double> list, double mean) {
+    final ArrayList<Double> tmpList = new ArrayList<Double>();
+
+    for (double d : list) {
+      double entry = Math.pow((d - mean), 2);
+      tmpList.add(entry);
+    }
+
+    return Math.sqrt(calcAverage(tmpList));
   }
 }

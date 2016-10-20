@@ -8,6 +8,5 @@ public class DiffCalcTest {
       DiffCalc dc = new DiffCalc(args[0]);
       System.out.println(dc + "\n  Aim.SPD = " + dc.getDiff().getAimDifficulty().getSpeed());      
     }
-    
   }
 }

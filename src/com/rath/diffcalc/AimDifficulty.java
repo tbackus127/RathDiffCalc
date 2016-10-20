@@ -50,6 +50,11 @@ public class AimDifficulty {
     return 0;
   }
 
+  /**
+   * Calculates the speed component of the aim difficulty.
+   * @param beatmap the map to calculate from.
+   * @return a double that is higher for more required jump speed.
+   */
   public static double calcSpeed(Beatmap beatmap) {
 
     final ArrayList<Double> jumpSpeeds = new ArrayList<Double>();

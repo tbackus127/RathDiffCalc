@@ -94,6 +94,15 @@ public class Beatmap implements Iterable<HitObject> {
   }
   
   /**
+   * Gets the theoretically most comfortable approach rate for this beatmap.
+   * @return a double from -2 to 11.
+   */
+  public double getOptimalAR() {
+    double result = getAverageBPM() / 24;
+    return (result < -2) ? -2 : (result > 11) ? 11 : result;
+  }
+  
+  /**
    * Gets the average beats-per-minute of this beatmap.
    * 
    * @return a double of the average BPM.

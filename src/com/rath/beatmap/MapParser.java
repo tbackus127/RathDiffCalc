@@ -15,13 +15,7 @@ public class MapParser {
       "Artist", "Creator", "Version", "Source", "HPDrainRate", "CircleSize",
       "OverallDifficulty", "ApproachRate", "SliderMultiplier", "SliderTickRate" };
 
-  private static final HashMap<String, HitObjectType> typeMap = new HashMap<String, HitObjectType>();
-
   public static Beatmap parse(File osuFile) throws FileNotFoundException {
-
-    if (typeMap.isEmpty()) {
-      buildTypeMap();
-    }
 
     if (osuFile.exists()) {
       Scanner fileScan = null;
@@ -49,12 +43,12 @@ public class MapParser {
     // Put values in a map
     HashMap<String, String> parseMap = new HashMap<String, String>();
     for (int i = 0; i < labelList.length; i++) {
-//      System.out.println(" Searching for label \"" + labelList[i] + "\"");
+      // System.out.println(" Searching for label \"" + labelList[i] + "\"");
       while (fscan.hasNextLine()) {
         String line = fscan.nextLine();
-//        System.out.println("   Found next line: \"" + line + "\"");
+        // System.out.println("   Found next line: \"" + line + "\"");
         if (line.startsWith(labelList[i])) {
-//          System.out.println("  Found label: " + labelList[i]);
+          // System.out.println("  Found label: " + labelList[i]);
           String dataValue = line.split(":", 2)[1];
           parseMap.put(labelList[i], dataValue.trim());
           break;
@@ -141,7 +135,8 @@ public class MapParser {
       final int time = Integer.parseInt(objData[2]);
 
       // Check what HitObject we're dealing with
-      switch (typeMap.get(objData[3])) {
+
+      switch (getType(objData[3])) {
         case SLIDER:
           ArrayList<SliderPoint> sliderPoints = new ArrayList<SliderPoint>();
           String[] spString = objData[5].split("\\|");
@@ -179,13 +174,24 @@ public class MapParser {
     return result;
   }
 
-  private static void buildTypeMap() {
-    // System.err.println("Built type map.");
-    typeMap.put("1", HitObjectType.HIT_CIRCLE);
-    typeMap.put("2", HitObjectType.SLIDER);
-    typeMap.put("5", HitObjectType.HIT_CIRCLE);
-    typeMap.put("6", HitObjectType.SLIDER);
-    typeMap.put("8", HitObjectType.SPINNER);
-    typeMap.put("12", HitObjectType.SPINNER);
+  private static HitObjectType getType(String s) {
+
+    int n = 0;
+    try {
+      n = Integer.parseInt(s);
+    }
+    catch (NumberFormatException nfe) {
+      System.err.println("Unexpected number in object byte: " + s);
+    }
+
+    // Spinner mask
+    if ((n | 8) == n) {
+      return HitObjectType.SPINNER;
+
+      // Slider mask
+    } else if ((n | 2) == n) {
+      return HitObjectType.SLIDER;
+    }
+    return HitObjectType.HIT_CIRCLE;
   }
 }

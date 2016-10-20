@@ -2,6 +2,7 @@
 .metadata
 bin/
 Songs/
+MapFiles/
 tmp/
 *.tmp
 *.bak

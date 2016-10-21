@@ -12,6 +12,15 @@ import java.util.Iterator;
  */
 public class Beatmap implements Iterable<HitObject> {
 
+  /** The threshold below which AR is scaled at 120ms instead of 150ms. */
+  private static final int AR_THRESHOLD = 5;
+
+  /** The slope of the ms to AR equation for AR < AR_THRESHOLD */
+  private static final double AR_SLOPE_LT = -1.0D / 120.0D;
+
+  /** The slope of the ms to AR equation for AR >= AR_THRESHOLD */
+  private static final double AR_SLOPE_GTE = -1.0D / 150.0D;
+
   /** The non-Unicode title of the beatmap. */
   private final String title;
 
@@ -105,28 +114,47 @@ public class Beatmap implements Iterable<HitObject> {
   }
 
   /**
+   * Gets the time delta required for the player to be able to read a beat
+   * ahead.
+   * 
+   * @return the time in milliseconds between two circles a beat apart.
+   */
+  public double getOptimalARTiming() {
+
+    // The time we will try to match in ARms
+    return 60000.0D / getBPM();
+
+  }
+
+  /**
    * Gets the theoretically most comfortable approach rate for this beatmap.
    * 
    * @return a double from 0 to 11.
    */
   public double getOptimalAR() {
 
-    // BPM     AR   ms/8th@BPM   ARms
-    // 100 -> 8.5     300ms       
-    // 120 -> 8.6     250ms
-    // 140 -> 8.7     214ms
-    // 160 -> 8.9     188ms
-    // 180 -> 9.1     167ms
-    // 200 -> 9.3     150ms
-    // 220 -> 9.6     136ms
-    // 240 -> 9.9     125ms
-    // 260 -> 10.3    115ms
-    
-    double msPerEighth = (60000.0D / getBPM()) / 2;
-    
-    
-    double result = getBPM() / 24;
-    return (result < 0) ? 0 : (result > 11) ? 11 : result;
+    // Rule: See a beat ahead
+
+    // BPM AR ms/8th@BPM ARms
+    // 100 -> 8.5 300ms 600ms
+    // 120 -> 8.6 250ms 500ms
+    // 140 -> 8.7 214ms 428ms
+    // 160 -> 8.9 188ms 376ms
+    // 180 -> 9.1 167ms
+    // 200 -> 9.3 150ms
+    // 220 -> 9.6 136ms
+    // 240 -> 9.9 125ms
+    // 260 -> 10.3 115ms 400ms
+
+    final double arMsPerBeat = getOptimalARTiming();
+    final double optimalAR;
+    if (arMsPerBeat < AR_THRESHOLD) {
+      optimalAR = AR_SLOPE_LT * arMsPerBeat + 15;
+    } else {
+      optimalAR = AR_SLOPE_GTE * arMsPerBeat + 13;
+    }
+
+    return (optimalAR < 0) ? 0 : (optimalAR > 11) ? 11 : optimalAR;
   }
 
   /**
@@ -135,26 +163,26 @@ public class Beatmap implements Iterable<HitObject> {
    * @return a double of the average BPM.
    */
   public double getBPM() {
-    
+
     double total = 0.0D;
     int count = 0;
-    
-    for(TimingPoint tp : this.timingPoints) {
-      if(tp.isKiai()) {
+
+    for (TimingPoint tp : this.timingPoints) {
+      if (tp.isKiai()) {
         total += tp.getMsPerBeat();
         count++;
       }
     }
-    
-    if(count > 0) {
+
+    if (count > 0) {
       return Math.round(60000.0D / (total / count));
     }
-    
-    for(TimingPoint tp : this.timingPoints) {
+
+    for (TimingPoint tp : this.timingPoints) {
       total += tp.getMsPerBeat();
       count++;
     }
-    
+
     return Math.round(60000.0D / (total / count));
   }
 
@@ -317,6 +345,7 @@ public class Beatmap implements Iterable<HitObject> {
 
   /**
    * Gets the length of the beatmap in milliseconds.
+   * 
    * @return the length of the beatmap as an int.
    */
   public int getLength() {
@@ -365,8 +394,7 @@ public class Beatmap implements Iterable<HitObject> {
    * @return a String of format "$#HITOBJECTS HitObjects @ $BPM BPM".
    */
   private String objStr() {
-    return "  " + this.hitObjects.size() + " HitObjects @ " + getBPM()
-        + "BPM";
+    return "  " + this.hitObjects.size() + " HitObjects @ " + getBPM() + "BPM";
   }
 
   @Override
